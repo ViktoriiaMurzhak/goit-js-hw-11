@@ -71,3 +71,13 @@ button {
   clip: rect(0 0 0 0);
   overflow: hidden;
 }
+
+/* .gallery {
+  display: flex;
+  gap: 10px;
+}
+
+.photo-card {
+  width: 100px;
+  height: 100px;
+} */

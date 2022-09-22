@@ -1,9 +1,12 @@
 import './css/styles.css';
 import { BASE_URL, getPhoto, itemPerPage } from './api/webApi';
 import Notiflix from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const galleryEl = document.querySelector('.gallery');
 const formEl = document.querySelector('#search-form');
+
 const moreBtn = document.querySelector('.load-more');
 
 let page = 1;
@@ -29,6 +32,7 @@ function onSubmit(event) {
   clearMarkup(galleryEl);
 
   const searchValue = event.currentTarget[0].value;
+
   mountData(searchValue);
 }
 
@@ -36,17 +40,23 @@ async function mountData(searchValue) {
   try {
     const data = await getPhoto(searchValue, page);
 
+    console.log('data', data);
+
     moreBtn.classList.remove('visually-hidden');
     moreBtn.addEventListener('click', () => {
       loadMoreCards(searchValue);
     });
     if (data.hits.length === 0) {
+      moreBtn.classList.add('visually-hidden');
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
     }
+    Notiflix.Notify.info(`Hooray! We found ${data.totalHits} images.`, 500);
     data.hits.forEach(photo => {
       createCardMarkup(photo);
+
+      doLightbox();
     });
   } catch (error) {
     console.log('errooooor', error);
@@ -65,23 +75,38 @@ function createCardMarkup({
   galleryEl.insertAdjacentHTML(
     'beforeend',
     `<div class="photo-card">
-  <img src=${webformatURL} alt=${tags} loading="lazy" />
+    <a class='link-img' href=${largeImageURL}><img src=${webformatURL} alt=${tags} loading="lazy" class="card-img"/></a>
   <div class="info">
     <p class="info-item">
-      <b>Likes:</b><span>${likes}</span>
+      <b class="info-label">Likes </b><span class="info-span">${likes}</span>
     </p>
     <p class="info-item">
-      <b>Views: ${views}</b>
+      <b class="info-label">Views </b><span class="info-span">${views}</span>
     </p>
     <p class="info-item">
-      <b>Comments: ${comments}</b>
+      <b class="info-label">Comments </b><span class="info-span">${comments}</span>
     </p>
     <p class="info-item">
-      <b>Downloads: ${downloads}</b>
+      <b class="info-label">Downloads </b><span class="info-span">${downloads}</span>
     </p>
   </div>
 </div>`
   );
+}
+
+function doLightbox() {
+  const linkImg = document.querySelector('.link-img');
+  linkImg.addEventListener('click', openModal);
+
+  function openModal(event) {
+    event.preventDefault();
+  }
+
+  let lightbox = new SimpleLightbox('.photo-card a', {
+    captionsData: 'alt',
+    captionPosition: 'bottom',
+    captionDelay: 250,
+  });
 }
 
 function clearMarkup(element) {

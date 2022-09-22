@@ -49,7 +49,7 @@ async function mountData(searchValue) {
       createCardMarkup(photo);
     });
   } catch (error) {
-    console.log('error', error);
+    console.log('errooooor', error);
   }
 }
 

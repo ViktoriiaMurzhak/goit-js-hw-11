@@ -6,13 +6,9 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const galleryEl = document.querySelector('.gallery');
 const formEl = document.querySelector('#search-form');
-
 const moreBtn = document.querySelector('.load-more');
-
-let page = 1;
-
 const totalPages = Math.ceil(500 / itemPerPage);
-
+let page = 1;
 formEl.addEventListener('submit', onSubmit);
 
 async function loadMoreCards(searchValue) {
@@ -22,43 +18,33 @@ async function loadMoreCards(searchValue) {
     createCardMarkup(photo);
   });
   if (page === totalPages) {
-    moreBtn.classList.add('visually-hidden');
+    addClass('visually-hidden');
   }
-}
-
-function onSubmit(event) {
-  event.preventDefault();
-
-  clearMarkup(galleryEl);
-
-  const searchValue = event.currentTarget[0].value;
-
-  mountData(searchValue);
 }
 
 async function mountData(searchValue) {
   try {
     const data = await getPhoto(searchValue, page);
 
-    console.log('data', data);
+    removeClass('visually-hidden');
 
-    moreBtn.classList.remove('visually-hidden');
     moreBtn.addEventListener('click', () => {
       loadMoreCards(searchValue);
     });
     if (data.hits.length === 0) {
-      moreBtn.classList.add('visually-hidden');
+      addClass('visually-hidden');
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
-    }
-    Notiflix.Notify.info(`Hooray! We found ${data.totalHits} images.`, 500);
-    data.hits.forEach(photo => {
-      createCardMarkup(photo);
-
+    } else {
+      Notiflix.Notify.info(`Hooray! We found ${data.totalHits} images.`);
+      data.hits.forEach(photo => {
+        createCardMarkup(photo);
+      });
       doLightbox();
-    });
+    }
   } catch (error) {
+    addClass('visually-hidden');
     console.log('errooooor', error);
   }
 }
@@ -103,12 +89,28 @@ function doLightbox() {
   }
 
   let lightbox = new SimpleLightbox('.photo-card a', {
-    captionsData: 'alt',
-    captionPosition: 'bottom',
     captionDelay: 250,
   });
 }
 
+function onSubmit(event) {
+  event.preventDefault();
+
+  clearMarkup(galleryEl);
+
+  const searchValue = event.currentTarget[0].value;
+
+  mountData(searchValue);
+}
+
 function clearMarkup(element) {
   element.innerHTML = '';
+}
+
+function addClass(className) {
+  moreBtn.classList.add(className);
+}
+
+function removeClass(className) {
+  moreBtn.classList.remove(className);
 }

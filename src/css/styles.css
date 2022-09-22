@@ -7,7 +7,7 @@ body {
 button {
   background: #f7fffd;
   height: 30px;
-  border: 1px solid #0a3125;
+  border: 1px solid #15644c;
   border-radius: 5px;
   margin: 0;
   padding: 0 5px;
@@ -34,7 +34,7 @@ button {
   padding: 0;
   height: 25px;
   width: 250px;
-  border: 1px solid #0a3125;
+  border: 1px solid #15644c;
   border-radius: 5px;
 }
 
@@ -44,6 +44,14 @@ button {
 
 .form__btn {
   margin-left: 10px;
+  transition-property: scale(1);
+  transition-duration: 250ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form__btn:hover {
+  cursor: pointer;
+  transform: scale(1.1);
 }
 
 .form__svg {

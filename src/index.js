@@ -9,14 +9,13 @@ const formEl = document.querySelector('#search-form');
 const moreBtn = document.querySelector('.load-more');
 const totalPages = Math.ceil(500 / itemPerPage);
 let page = 1;
+
 formEl.addEventListener('submit', onSubmit);
 
 async function loadMoreCards(searchValue) {
   page += 1;
   const data = await getPhoto(searchValue, page);
-  data.hits.forEach(photo => {
-    createCardMarkup(photo);
-  });
+  createGalleryMarkup(data.hits);
   if (page === totalPages) {
     addClass('visually-hidden');
   }
@@ -28,9 +27,14 @@ async function mountData(searchValue) {
 
     removeClass('visually-hidden');
 
-    moreBtn.addEventListener('click', () => {
+    const moreBtnClbc = () => {
       loadMoreCards(searchValue);
-    });
+    };
+
+    moreBtn.removeEventListener('click', moreBtnClbc);
+
+    moreBtn.addEventListener('click', moreBtnClbc);
+
     if (data.hits.length === 0) {
       addClass('visually-hidden');
       Notiflix.Notify.failure(
@@ -38,9 +42,7 @@ async function mountData(searchValue) {
       );
     } else {
       Notiflix.Notify.info(`Hooray! We found ${data.totalHits} images.`);
-      data.hits.forEach(photo => {
-        createCardMarkup(photo);
-      });
+      createGalleryMarkup(data.hits);
       doLightbox();
     }
   } catch (error) {
@@ -49,18 +51,18 @@ async function mountData(searchValue) {
   }
 }
 
-function createCardMarkup({
-  webformatURL,
-  largeImageURL,
-  tags,
-  likes,
-  views,
-  comments,
-  downloads,
-}) {
-  galleryEl.insertAdjacentHTML(
-    'beforeend',
-    `<div class="photo-card">
+function createGalleryMarkup(cardsArr) {
+  const markup = cardsArr
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => `<div class="photo-card">
     <a class='link-img' href=${largeImageURL}><img src=${webformatURL} alt=${tags} loading="lazy" class="card-img"/></a>
   <div class="info">
     <p class="info-item">
@@ -77,7 +79,10 @@ function createCardMarkup({
     </p>
   </div>
 </div>`
-  );
+    )
+    .join('');
+
+  galleryEl.insertAdjacentHTML('beforeend', markup);
 }
 
 function doLightbox() {
@@ -99,6 +104,8 @@ function onSubmit(event) {
   clearMarkup(galleryEl);
 
   const searchValue = event.currentTarget[0].value;
+
+  console.log('searchValue', searchValue);
 
   mountData(searchValue);
 }

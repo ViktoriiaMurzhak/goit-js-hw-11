@@ -9,13 +9,16 @@ const formEl = document.querySelector('#search-form');
 const moreBtn = document.querySelector('.load-more');
 const totalPages = Math.ceil(500 / itemPerPage);
 let page = 1;
+let searchValue = '';
 
 formEl.addEventListener('submit', onSubmit);
 
 async function loadMoreCards(searchValue) {
   page += 1;
   const data = await getPhoto(searchValue, page);
+
   createGalleryMarkup(data.hits);
+
   if (page === totalPages) {
     addClass('visually-hidden');
   }
@@ -27,12 +30,7 @@ async function mountData(searchValue) {
 
     removeClass('visually-hidden');
 
-    const moreBtnClbc = () => {
-      loadMoreCards(searchValue);
-    };
-
     moreBtn.removeEventListener('click', moreBtnClbc);
-
     moreBtn.addEventListener('click', moreBtnClbc);
 
     if (data.hits.length === 0) {
@@ -49,6 +47,10 @@ async function mountData(searchValue) {
     addClass('visually-hidden');
     console.log('errooooor', error);
   }
+}
+
+function moreBtnClbc() {
+  loadMoreCards(searchValue);
 }
 
 function createGalleryMarkup(cardsArr) {
@@ -103,7 +105,7 @@ function onSubmit(event) {
 
   clearMarkup(galleryEl);
 
-  const searchValue = event.currentTarget[0].value;
+  searchValue = event.currentTarget[0].value;
 
   console.log('searchValue', searchValue);
 
